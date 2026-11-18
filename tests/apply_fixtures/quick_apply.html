@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Mock Quick Apply</title>
+<style>.step{display:none}.step.on{display:block}.err{color:red}</style></head>
+<body>
+<!-- A multi-step application form used by tests/test_apply.py -->
+<form id="f" onsubmit="return false">
+  <section class="step on" data-step="1">
+    <h2>Choose documents</h2>
+    <fieldset>
+      <legend>Resumé</legend>
+      <label><input type="radio" name="resume" value="saved"> Select a resumé</label>
+      <label><input type="radio" name="resume" value="upload" id="up"> Upload a resumé</label>
+      <label><input type="radio" name="resume" value="none"> Don't include a resumé</label>
+    </fieldset>
+    <div id="uploadBox" style="display:none">
+      <label for="file">Upload resume (PDF)</label><input type="file" id="file" name="file">
+    </div>
+    <fieldset>
+      <legend>Cover letter</legend>
+      <label><input type="radio" name="cl" value="upload"> Upload a cover letter</label>
+      <label><input type="radio" name="cl" value="write"> Write a cover letter</label>
+      <label><input type="radio" name="cl" value="none"> Don't include a cover letter</label>
+    </fieldset>
+    <button type="button" onclick="next(1)">Continue</button>
+  </section>
+
+  <section class="step" data-step="2">
+    <h2>Answer employer questions</h2>
+    <label for="yrs">How many years of experience do you have as a web developer?</label>
+    <select id="yrs" required>
+      <option value="">Select</option><option>No experience</option><option>Less than 1 year</option>
+      <option>1-2 years</option><option>3+ years</option>
+    </select>
+    <fieldset>
+      <legend>Are you legally authorised to work in the Philippines?</legend>
+      <label><input type="radio" name="auth" value="y" required> Yes</label>
+      <label><input type="radio" name="auth" value="n"> No</label>
+    </fieldset>
+    <label for="sal">What's your expected monthly basic salary?</label>
+    <input id="sal" type="text" required>
+    <label for="notice">How much notice are you required to give your current employer?</label>
+    <input id="notice" type="text" required>
+    <label for="opt">Anything else you'd like to add? (optional)</label>
+    <input id="opt" type="text">
+    <p class="err" id="err2"></p>
+    <button type="button" onclick="next(2)">Continue</button>
+  </section>
+
+  <section class="step" data-step="3">
+    <h2>Update your profile</h2>
+    <label for="fn">First name</label><input id="fn" required>
+    <label for="ln">Last name</label><input id="ln" required>
+    <label for="em">Email address</label><input id="em" type="email" required>
+    <label for="ph">Mobile phone number</label><input id="ph" type="tel" required>
+    <label><input type="checkbox" id="consent" required> I agree to the privacy policy</label>
+    <button type="button" onclick="next(3)">Continue</button>
+  </section>
+
+  <section class="step" data-step="4">
+    <h2>Review and submit</h2>
+    <p id="summary"></p>
+    <button type="button" onclick="submitApp()">Submit application</button>
+  </section>
+</form>
+<div id="done" style="display:none"><h1>Application sent</h1><p>Your application has been submitted to Mock Corp.</p></div>
+
+<script>
+  const v = id => document.getElementById(id);
+  document.querySelectorAll('input[name=resume]').forEach(r => r.addEventListener('change', () => {
+    v('uploadBox').style.display = v('up').checked ? 'block' : 'none';
+  }));
+  // Mock account has no saved resume: "Select a resumé" is disabled, so upload must be chosen.
+  document.querySelector('input[value=saved]').disabled = true;
+  window.captured = {};
+  function show(n){ document.querySelectorAll('.step').forEach(s => s.classList.toggle('on', +s.dataset.step === n)); }
+  function next(n){
+    if (n === 1) {
+      const r = document.querySelector('input[name=resume]:checked');
+      const c = document.querySelector('input[name=cl]:checked');
+      if (!r || r.value === 'none' || (r.value === 'upload' && !v('file').files.length) || !c) return;
+      captured.resume = v('file').files[0] && v('file').files[0].name; captured.coverLetter = c.value;
+    }
+    if (n === 2) {
+      if (!v('yrs').value || !document.querySelector('input[name=auth]:checked') || !v('sal').value || !v('notice').value) { v('err2').textContent = 'Please answer all questions'; return; }
+      captured.years = v('yrs').value; captured.auth = document.querySelector('input[name=auth]:checked').value;
+      captured.salary = v('sal').value; captured.notice = v('notice').value;
+    }
+    if (n === 3) {
+      if (!v('fn').value || !v('em').value || !v('consent').checked) return;
+      captured.name = v('fn').value + ' ' + v('ln').value; captured.email = v('em').value; captured.phone = v('ph').value;
+    }
+    show(n + 1);
+  }
+  function submitApp(){ captured.submitted = true; v('f').style.display = 'none'; v('done').style.display = 'block'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+name: vera
+version: 2.0.0
+description: Vera Frei, the owner's job-hunting agent. Finds jobs, applies through her form engine after a clear go-ahead, cold email, job mail, reports.
+author: the owner
+provides_tools:
+  - vera_find_jobs
+  - vera_job_details
+  - vera_job_state
+  - vera_add_job
+  - vera_preferences
+  - vera_profile
+  - vera_resume
+  - vera_save_answer
+  - vera_settings
+  - vera_plan_applications
+  - vera_start_applications
+  - vera_stop
+  - vera_recommend_jobs
+  - vera_status
+  - vera_applications
+  - vera_update_application
+  - vera_statistics
+  - vera_cover_letter
+  - vera_draft_emails
+  - vera_manage_drafts
+  - vera_send_emails
+  - vera_job_mail
+  - vera_save_rule
+  - vera_rules
+  - vera_learn
+  - vera_learned
+  - vera_note
+  - vera_social
+  - vera_reply_email
+  - vera_other_channel
+  - vera_handoff
+provides_hooks:
+  - pre_gateway_dispatch
+  - pre_llm_call

@@ -1,0 +1,22 @@
+# Secrets: never commit
+.env
+*.env
+!.env.example
+auth.json
+config.yaml
+!hermes-profile/config.example.yaml
+
+# Personal data: résumés, browser sign-ins, cover letters, screenshots, databases, logs
+data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.log
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/

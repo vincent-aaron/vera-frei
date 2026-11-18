@@ -1,0 +1,175 @@
+# Vera Frei's Hermes profile. FREE MODELS ONLY (checked 6 Nov 2026).
+# Main: Gemini free tier. If it is rate-limited: NVIDIA free, then OpenRouter ":free" models.
+# Later: switch to Ollama (provider: ollama-local / custom base_url http://localhost:11434/v1).
+model:
+  default: gemini-3-flash-preview
+  provider: gemini
+fallback_providers:
+  # FREE ONLY (no card). Tried in order when the one before is busy. Entries without a key in this
+  # profile's .env are skipped. Same providers as Vera's own code (app/vera/free_models.py).
+  # Check them all with: app/vera.bat models
+  - provider: gemini
+    model: gemini-3.5-flash-lite
+  - provider: gemini
+    model: gemini-3.6-flash
+  # Groq is NOT here: its free tier allows 8,000 tokens a minute, and one chat call with Vera's tools is 6,000-11,000,
+  # so it refuses (HTTP 413). Vera's own small jobs (cover letters, form answers) still use it, via app/vera/free_models.py.
+  - provider: nvidia
+    model: nvidia/nemotron-3.5-super-vl-120b-a12b
+  - provider: nvidia
+    model: nvidia/nemotron-3.5-lightning-30b-a3b
+  # Other labs' open models, free on the same NVIDIA key (tested 6 Nov 2026: English + tool calls)
+  - provider: nvidia
+    model: mistralai/mistral-large-4-1t-a52b
+  - provider: nvidia
+    model: z-ai/glm-5.3-flash
+  # Z.AI GLM Flash: free (GLM_API_KEY)
+  - provider: custom
+    model: glm-4.7-flash
+    base_url: https://api.z.ai/api/paas/v4
+    key_env: GLM_API_KEY
+  - provider: custom
+    model: glm-4.5-flash
+    base_url: https://api.z.ai/api/paas/v4
+    key_env: GLM_API_KEY
+  # Mistral: free Experiment plan (MISTRAL_API_KEY)
+  - provider: custom
+    model: mistral-small-latest
+    base_url: https://api.mistral.ai/v1
+    key_env: MISTRAL_API_KEY
+  # Hugging Face: small free monthly credit (HF_TOKEN)
+  - provider: custom
+    model: openai/gpt-oss-120b
+    base_url: https://router.huggingface.co/v1
+    key_env: HF_TOKEN
+  # Cohere: trial key, 1,000 calls a month (COHERE_API_KEY)
+  - provider: custom
+    model: command-a-03-2025
+    base_url: https://api.cohere.ai/compatibility/v1
+    key_env: COHERE_API_KEY
+  - provider: openrouter
+    model: google/gemma-4-31b-it:free
+  - provider: openrouter
+    model: google/gemma-4-26b-a4b-it:free
+  - provider: openrouter
+    model: nvidia/nemotron-3.5-super-vl:free
+  - provider: openrouter
+    model: dots-studio/dots-3-note-preview:free
+  # Slow on the free tier (1-2 minutes an answer), so last: still better than no answer
+  - provider: nvidia
+    model: minimaxai/minimax-m3.1-flash
+  - provider: nvidia
+    model: deepseek-ai/deepseek-v4.1-flash
+  - provider: openrouter
+    model: openrouter/free
+# Side tasks (summaries, compression, reading images) default to a PAID model on OpenRouter. Pinned to free Gemini.
+auxiliary:
+  vision:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  web_extract:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  compression:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  session_search:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  title_generation:
+    enabled: false              # saves free AI quota; titles come from the first message
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  background_review:
+    enabled: false              # no self-editing forks after turns (quota, and shared memory)
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  tts_audio_tags:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+  group_router:
+    provider: gemini
+    model: gemini-3.5-flash-lite
+_config_version: 52
+plugins:
+  enabled:
+    - vera
+  disabled: []
+  entries:
+    vera:
+      allow_tool_override: false
+
+# ---- Vera on Discord (moved onto Hermes, 6 Nov 2026) ----
+# Server members talk to her, so on Discord she gets ONLY her own tools: no terminal, files, browser, code or
+# computer control on this laptop. The Hermes terminal (hermes -p vera) keeps its normal tools plus Vera's.
+platform_toolsets:
+  discord:
+    - vera
+  # On the laptop and in kanban tasks from Frei (13 Nov 2026): only her own tools. Without this line a Frei task
+  # would run with Hermes's full default set (terminal, files, browser) on this laptop.
+  cli:
+    - vera
+    - clarify
+agent:
+  disabled_toolsets:
+    - discord          # Hermes re-adds these on Discord by itself; Vera doesn't use them
+    - discord_admin
+# Memory is shared by everyone who talks to her, so it could repeat the owner's details to members.
+# Vera keeps each person's facts separately in her own database instead.
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+group_sessions_per_user: true   # each person has their own conversation in a shared channel
+discord:
+  # Hermes's typed commands (/restart, /update, /model, /yolo...) are the owner's only (7 Nov 2026). Without an admin
+  # list, every server member could run them. Members keep /voice (join/leave a voice channel) plus /help and /whoami.
+  allow_admin_from: ["100000000000000014"]
+  group_allow_admin_from: ["100000000000000014"]
+  group_user_allowed_commands: [voice]
+  require_mention: true
+  auto_thread: false         # replies stay in the channel, so the channel decides the board
+  history_backfill: false    # read only the message itself: saves free AI quota
+  ignored_channels:
+    - "100000000000000003"   # vera-instructions (read-only guide)
+  channel_prompts:
+    "100000000000000008": "This is #vera-remote: applications here use the remote job boards (Real Work From Anywhere, Jobspresso, Remotive, Jobicy, RemoteOK, We Work Remotely, Working Nomads, Himalayas, LaraJobs, Hacker News, company job lists)."
+    "100000000000000009": "This is #vera-company-site-application: applications here use company forms (Greenhouse, Lever, Ashby, Workable)."
+    "100000000000000002": "This is #vera-multiboards-application, the main channel: one run takes turns across every source (remote boards and company forms)."
+    "100000000000000004": "This is #vera-social-outreach: cold email happens here (drafts first, sent only after a plain proceed). No job applications here: 'email N jobs' means cold email."
+    "100000000000000005": "This is #vera-job-mail: employers' replies and email happen here. No job applications here: 'email N jobs' means cold email (vera_draft_emails), never an application run."
+    "100000000000000010": "This is the owner's private chat channel. Only he and Vera can see it."
+    "100000000000000011": "This is #vera-owner-email, the owner's private email channel. Only he and Vera can see it. Employers' replies, answering them (vera_reply_email) and cold email happen here."
+    "100000000000000012": "This is #vera-notes: The owner's list of future improvements to Vera that need code changes (vera_note). Things she can just learn or follow as a rule don't go here."
+# ---- Voice channels (7 Nov 2026). In a server voice channel, type "@Vera join vc" in a text channel; "@Vera leave vc" ends it.
+# (9 Nov 2026: plain requests like that are turned into "/voice join" / "/voice leave" by Vera's hook, vera/hermes/hooks.py.)
+# All free: speech-to-text is Whisper on the Groq key (no big local model), speech is Microsoft Edge's voices,
+# and ffmpeg comes from winget (Gyan.FFmpeg). Voice audio goes to Groq to be written out, like text goes to the AI.
+stt:
+  provider: groq
+  language: en
+  echo_transcripts: true      # posts what she heard in the linked text channel, so mistakes are visible
+tts:
+  provider: edge
+  edge:
+    voice: en-PH-RosaNeural   # Philippine English
+tools:
+  tool_search:
+    enabled: "off"    # her 22 tools (~3k tokens) stay visible: saves one free AI call per message
+platforms:
+  discord:
+    enabled: true
+    home_channel:
+      platform: discord
+      chat_id: '100000000000000013'
+      name: 'Frei Automate / #vera-frei'
+      user_id: '100000000000000014'
+      scope_id: '100000000000000001'
+display:
+  # A message sent while she's still answering waits for its own turn (7 Nov 2026). The default, "interrupt",
+  # treated it as a correction to the turn in progress ("Redirected current run"), so a quick "proceed" could
+  # land inside the turn that was still showing the plan.
+  busy_input_mode: queue
+  platforms:
+    discord:
+      suppress_warning_notifications: true   # no "Model fallback: ..." notices in Discord; still in the logs and the terminal
+      tool_progress: "off"                   # no "💼 vera_status..." lines in Discord chat

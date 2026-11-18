@@ -1,0 +1,14 @@
+[project]
+name = "vera-frei-hermes"
+version = "2.0.0"
+requires-python = ">=3.11"
+# What Vera's code needs inside Hermes's Python. discord.py and httpx come with Hermes. The form engine
+# (Playwright) runs in Vera's own venv as a separate process, so it isn't listed.
+dependencies = [
+    "openpyxl>=3.1,<4",
+    "python-docx>=1.1,<2",
+    "reportlab>=4,<6",
+    "pypdf>=5,<7",
+    "python-dotenv>=1.0",
+    "tzdata",
+]
